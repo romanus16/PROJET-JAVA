@@ -11,8 +11,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import view.DashboardPanel;
-import view.StatistiquePanel;
 
 /**
  *
@@ -42,39 +40,39 @@ public class teste extends javax.swing.JFrame {
         commandePanel = new CommandePanel();
         statistiquePanel = new StatistiquePanel();
         dashboardPanel = new DashboardPanel();
-       // ===== 2. Changez le layout de jPanel1 =====
+       // 2. Changez le layout de jPanel1
     jPanel1.setLayout(new BorderLayout());
     
-    // ===== 3. Retirez les composants de leurs positions actuelles =====
+    // 3. Retirez les composants de leurs positions actuelles
     jPanel1.remove(jPanel2);
     jPanel1.remove(jPanel3);
     jPanel1.remove(jLabel1); 
     
-    // ===== 4. Ajoutez la photo en premier =====
+    //4. Ajoutez la photo en premier
     jLabel1.setHorizontalAlignment(JLabel.CENTER);
     jLabel1.setVerticalAlignment(JLabel.CENTER);
     jPanel1.add(jLabel1, BorderLayout.CENTER);
     
-    // ===== 5. Ajoutez le menu =====
+    //5. Ajoutez le menu
     jPanel2.setPreferredSize(new Dimension(230, 0));
     jPanel1.add(jPanel2, BorderLayout.WEST);
     
-    // ===== 6. Ajoutez le contenu =====
+    //6. Ajoutez le contenu
     jPanel3.setLayout(new BorderLayout());
     jPanel3.setOpaque(false); // Transparent pour voir la photo
     jPanel1.add(jPanel3, BorderLayout.CENTER);
     
-    // ===== 7. Ordre des calques =====
+    //7. Ordre des calques
     jPanel1.setComponentZOrder(jLabel1, 2);  // Photo derrière
     jPanel1.setComponentZOrder(jPanel2, 1);  // Menu au milieu
     jPanel1.setComponentZOrder(jPanel3, 0);  // Contenu devant
     
-    // ===== 8. Affichez Dashboard =====
+    //8. Affichez Dashboard
     jPanel3.removeAll();
     jPanel3.add(dashboardPanel, BorderLayout.CENTER);
     jPanel3.revalidate();
     
-    // ===== 9. Navigation =====
+    // 9. Navigation
     initialiserNavigation();
         
     }

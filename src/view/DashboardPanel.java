@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package view;
 
 import Business.Produit;
@@ -9,393 +5,209 @@ import Business.Commande;
 import DAO.CommandeDAO;
 import DAO.ProduitDAO;
 import DAO.DBException;
+
 import javax.swing.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-/**
- *
- * @author HP
- */
-public class DashboardPanel extends javax.swing.JPanel {
-    
-    // ========== DAOs ==========
+public class DashboardPanel extends JPanel {
+
     private CommandeDAO commandeDAO;
     private ProduitDAO produitDAO;
-    
-    // ========== Constructeur ==========
+
+    // Labels statistiques
+    private JLabel lblDate;
+    private JLabel lblCAJour;
+    private JLabel lblCommandesJour;
+    private JLabel lblAlertes;
+    private JLabel lblTotalStock;
+    private JLabel lblTopProduit;
+
+    // Boutons
+    private JButton btnNouvelleCommande;
+    private JButton btnNouveauProduit;
+    private JButton btnMouvementStock;
+
     public DashboardPanel() {
-        // Forcer la taille du panel
-        setPreferredSize(new Dimension(720, 500));
-        setMinimumSize(new Dimension(720, 500));
-        setMaximumSize(new Dimension(720, 500));
-        
+
+        setLayout(new BorderLayout()); 
         initComponents();
-        
-        // Initialiser les DAOs
+
         commandeDAO = new CommandeDAO();
         produitDAO = new ProduitDAO();
-        
-        // Charger les données
+
         chargerInfos();
-        
-        // Timer pour rafraîchir automatiquement toutes les 30 secondes
+
+        // Rafraîchissement automatique toutes les 30 secondes
         new Timer(30000, e -> chargerInfos()).start();
     }
-    
-    // ========== Charger les informations du dashboard ==========
+
+    private void initComponents() {
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
+        mainPanel.setBackground(Color.WHITE);
+
+        // HEADER 
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
+
+        JLabel titre = new JLabel("TABLEAU DE BORD");
+        titre.setFont(new Font("Segoe UI", Font.BOLD, 26));
+
+        lblDate = new JLabel();
+        lblDate.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
+        header.add(titre, BorderLayout.WEST);
+        header.add(lblDate, BorderLayout.EAST);
+
+        //  CENTER 
+        JPanel center = new JPanel(new GridLayout(2,3,20,20));
+        center.setOpaque(false);
+
+        lblCAJour = createCard(center, "Chiffre d'affaires du jour");
+        lblCommandesJour = createCard(center, "Commandes aujourd'hui");
+        lblAlertes = createCard(center, "Produits en alerte");
+        lblTotalStock = createCard(center, "Stock total");
+        lblTopProduit = createCard(center, "Top produit");
+
+        //  FOOTER 
+        JPanel footer = new JPanel(new FlowLayout(FlowLayout.CENTER,20,10));
+        footer.setOpaque(false);
+
+        btnNouvelleCommande = new JButton("Nouvelle Commande");
+        btnNouveauProduit = new JButton("Nouveau Produit");
+        btnMouvementStock = new JButton("Mouvement Stock");
+
+        footer.add(btnNouvelleCommande);
+        footer.add(btnNouveauProduit);
+        footer.add(btnMouvementStock);
+
+        //  ACTIONS 
+        btnNouvelleCommande.addActionListener(e -> btnNouvelleCommandeActionPerformed());
+        btnNouveauProduit.addActionListener(e -> btnNouveauProduitActionPerformed());
+        btnMouvementStock.addActionListener(e -> btnMouvementStockActionPerformed());
+
+        //  ASSEMBLAGE 
+        mainPanel.add(header, BorderLayout.NORTH);
+        mainPanel.add(center, BorderLayout.CENTER);
+        mainPanel.add(footer, BorderLayout.SOUTH);
+
+        add(mainPanel, BorderLayout.CENTER);
+    }
+
+    private JLabel createCard(JPanel parent, String titre) {
+
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY,1));
+        card.setBackground(Color.WHITE);
+
+        JLabel lblTitre = new JLabel(titre);
+        lblTitre.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblTitre.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+
+        JLabel lblValeur = new JLabel("0", SwingConstants.CENTER);
+        lblValeur.setFont(new Font("Segoe UI", Font.BOLD, 22));
+
+        card.add(lblTitre, BorderLayout.NORTH);
+        card.add(lblValeur, BorderLayout.CENTER);
+
+        parent.add(card);
+
+        return lblValeur;
+    }
+
+    //  CHARGEMENT DES DONNEES 
     private void chargerInfos() {
+
         try {
             // Date du jour
             SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd MMMM yyyy");
             lblDate.setText(sdf.format(new Date()).toUpperCase());
-            
-            // Chiffre d'affaires du jour
+
+            // CA du jour
             double caJour = commandeDAO.chiffreAffairesDuJour();
             lblCAJour.setText(String.format("%,.0f FCFA", caJour));
-            
-            // Nombre de commandes aujourd'hui
+
+            // Commandes du jour
             List<Commande> commandes = commandeDAO.listerCommandes();
             SimpleDateFormat sdfJour = new SimpleDateFormat("yyyyMMdd");
-            String aujourdhui = sdfJour.format(new Date());
-            
+            String today = sdfJour.format(new Date());
+
             long commandesJour = commandes.stream()
-                .filter(c -> sdfJour.format(c.getDateCommande()).equals(aujourdhui))
-                .count();
+                    .filter(c -> sdfJour.format(c.getDateCommande()).equals(today))
+                    .count();
+
             lblCommandesJour.setText(String.valueOf(commandesJour));
-            
+
             // Produits en alerte
             List<Produit> alertes = produitDAO.produitsEnAlerte();
             lblAlertes.setText(String.valueOf(alertes.size()));
-            
-            // Total produits en stock
+
+            // Total stock
             List<Produit> tousProduits = produitDAO.listerTous();
             int totalStock = tousProduits.stream()
-                .mapToInt(Produit::getStockActuel)
-                .sum();
+                    .mapToInt(Produit::getStockActuel)
+                    .sum();
+
             lblTotalStock.setText(String.valueOf(totalStock));
-            
-            // Produits les plus vendus (simulation)
+
+            // Top produit (exemple simple)
             if (!tousProduits.isEmpty()) {
                 Produit top = tousProduits.get(0);
-                lblTopProduit.setText(top.getNom() + " (" + top.getCategorie().getLibelle() + ")");
+                lblTopProduit.setText(top.getNom());
+            } else {
+                lblTopProduit.setText("Aucun");
             }
-            
+
         } catch (DBException e) {
-            System.err.println("Erreur chargement dashboard: " + e.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Erreur chargement dashboard : " + e.getMessage(),
+                    "Erreur",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
+    //  NAVIGATION 
+    private void btnNouvelleCommandeActionPerformed() {
+        ouvrirPanel(new CommandePanel(), "COMMANDE");
+    }
 
-        jPanelWelcome = new javax.swing.JPanel();
-        jLabelWelcome = new javax.swing.JLabel();
-        lblDate = new javax.swing.JLabel();
-        jPanelStats = new javax.swing.JPanel();
-        jPanelCA = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        lblCAJour = new javax.swing.JLabel();
-        jPanelCommandes = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
-        lblCommandesJour = new javax.swing.JLabel();
-        jPanelAlertes = new javax.swing.JPanel();
-        jLabel5 = new javax.swing.JLabel();
-        lblAlertes = new javax.swing.JLabel();
-        jPanelStock = new javax.swing.JPanel();
-        jLabel7 = new javax.swing.JLabel();
-        lblTotalStock = new javax.swing.JLabel();
-        jPanelTop = new javax.swing.JPanel();
-        jLabel9 = new javax.swing.JLabel();
-        lblTopProduit = new javax.swing.JLabel();
-        jPanelQuickActions = new javax.swing.JPanel();
-        jLabel11 = new javax.swing.JLabel();
-        btnNouvelleCommande = new javax.swing.JButton();
-        btnNouveauProduit = new javax.swing.JButton();
-        btnMouvementStock = new javax.swing.JButton();
-        jLabelBackground = new javax.swing.JLabel();
+    private void btnNouveauProduitActionPerformed() {
+        ouvrirPanel(new ProduitPanel(), "PRODUIT");
+    }
 
-        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+    private void btnMouvementStockActionPerformed() {
+        ouvrirPanel(new MouvementStockPanel(), "MOUVEMENT STOCK");
+    }
 
-        jPanelWelcome.setBackground(new Color(102, 0, 102, 150));
-        jPanelWelcome.setOpaque(false);
-        jPanelWelcome.setLayout(new java.awt.GridBagLayout());
+    private void ouvrirPanel(JPanel panel, String menu) {
 
-        jLabelWelcome.setFont(new java.awt.Font("Script MT Bold", 1, 36)); // NOI18N
-        jLabelWelcome.setForeground(new java.awt.Color(255, 255, 255));
-        jLabelWelcome.setText("BIENVENUE DANS VOTRE ESPACE DE GESTION");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(20, 20, 10, 20);
-        jPanelWelcome.add(jLabelWelcome, gridBagConstraints);
+        Container parent = getParent();
 
-        lblDate.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lblDate.setForeground(new java.awt.Color(255, 255, 255));
-        lblDate.setText("Date du jour");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 20, 20, 20);
-        jPanelWelcome.add(lblDate, gridBagConstraints);
-
-        add(jPanelWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 680, 120));
-
-        jPanelStats.setOpaque(false);
-        jPanelStats.setLayout(new java.awt.GridLayout(2, 3, 20, 20));
-
-        jPanelCA.setBackground(new Color(51, 153, 255, 200));
-        jPanelCA.setBorder(javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        jPanelCA.setLayout(new java.awt.BorderLayout());
-
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Chiffre d'Affaires du Jour");
-        jPanelCA.add(jLabel1, java.awt.BorderLayout.NORTH);
-
-        lblCAJour.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        lblCAJour.setForeground(new java.awt.Color(255, 255, 255));
-        lblCAJour.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblCAJour.setText("0 FCFA");
-        jPanelCA.add(lblCAJour, java.awt.BorderLayout.CENTER);
-
-        jPanelStats.add(jPanelCA);
-
-        jPanelCommandes.setBackground(new Color(255, 153, 51, 200));
-        jPanelCommandes.setBorder(javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        jPanelCommandes.setLayout(new java.awt.BorderLayout());
-
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("Commandes Aujourd'hui");
-        jPanelCommandes.add(jLabel3, java.awt.BorderLayout.NORTH);
-
-        lblCommandesJour.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        lblCommandesJour.setForeground(new java.awt.Color(255, 255, 255));
-        lblCommandesJour.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblCommandesJour.setText("0");
-        jPanelCommandes.add(lblCommandesJour, java.awt.BorderLayout.CENTER);
-
-        jPanelStats.add(jPanelCommandes);
-
-        jPanelAlertes.setBackground(new Color(255, 102, 102, 200));
-        jPanelAlertes.setBorder(javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        jPanelAlertes.setLayout(new java.awt.BorderLayout());
-
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("Produits en Alerte");
-        jPanelAlertes.add(jLabel5, java.awt.BorderLayout.NORTH);
-
-        lblAlertes.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        lblAlertes.setForeground(new java.awt.Color(255, 255, 255));
-        lblAlertes.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblAlertes.setText("0");
-        jPanelAlertes.add(lblAlertes, java.awt.BorderLayout.CENTER);
-
-        jPanelStats.add(jPanelAlertes);
-
-        jPanelStock.setBackground(new Color(153, 102, 204, 200));
-        jPanelStock.setBorder(javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        jPanelStock.setLayout(new java.awt.BorderLayout());
-
-        jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel7.setText("Articles en Stock");
-        jPanelStock.add(jLabel7, java.awt.BorderLayout.NORTH);
-
-        lblTotalStock.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        lblTotalStock.setForeground(new java.awt.Color(255, 255, 255));
-        lblTotalStock.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblTotalStock.setText("0");
-        jPanelStock.add(lblTotalStock, java.awt.BorderLayout.CENTER);
-
-        jPanelStats.add(jPanelStock);
-
-        jPanelTop.setBackground(new Color(0, 204, 153, 200));
-        jPanelTop.setBorder(javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        jPanelTop.setLayout(new java.awt.BorderLayout());
-
-        jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel9.setText("Produit le plus vendu");
-        jPanelTop.add(jLabel9, java.awt.BorderLayout.NORTH);
-
-        lblTopProduit.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
-        lblTopProduit.setForeground(new java.awt.Color(255, 255, 255));
-        lblTopProduit.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblTopProduit.setText("Aucune donnée");
-        jPanelTop.add(lblTopProduit, java.awt.BorderLayout.CENTER);
-
-        jPanelStats.add(jPanelTop);
-
-        add(jPanelStats, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 680, 220));
-
-        jPanelQuickActions.setBackground(new Color(255, 255, 255, 200));
-        jPanelQuickActions.setBorder(javax.swing.BorderFactory.createTitledBorder("Actions Rapides"));
-        jPanelQuickActions.setLayout(new java.awt.GridBagLayout());
-
-        jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel11.setText("Que voulez-vous faire ?");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 20, 10);
-        jPanelQuickActions.add(jLabel11, gridBagConstraints);
-
-        btnNouvelleCommande.setBackground(new java.awt.Color(51, 153, 255));
-        btnNouvelleCommande.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnNouvelleCommande.setForeground(new java.awt.Color(255, 255, 255));
-        btnNouvelleCommande.setText("➕ Nouvelle Commande");
-        btnNouvelleCommande.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnNouvelleCommandeActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(5, 10, 10, 5);
-        jPanelQuickActions.add(btnNouvelleCommande, gridBagConstraints);
-
-        btnNouveauProduit.setBackground(new java.awt.Color(255, 153, 51));
-        btnNouveauProduit.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnNouveauProduit.setForeground(new java.awt.Color(255, 255, 255));
-        btnNouveauProduit.setText("📦 Nouveau Produit");
-        btnNouveauProduit.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnNouveauProduitActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 10, 5);
-        jPanelQuickActions.add(btnNouveauProduit, gridBagConstraints);
-
-        btnMouvementStock.setBackground(new java.awt.Color(102, 204, 0));
-        btnMouvementStock.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnMouvementStock.setForeground(new java.awt.Color(255, 255, 255));
-        btnMouvementStock.setText("📊 Mouvement de Stock");
-        btnMouvementStock.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnMouvementStockActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 10, 10);
-        jPanelQuickActions.add(btnMouvementStock, gridBagConstraints);
-
-        add(jPanelQuickActions, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 390, 680, 100));
-
-        jLabelBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/Gemini_Generated_Image_hqx7ulhqx7ulhqx7.png"))); // NOI18N
-        add(jLabelBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 720, 500));
-    }// </editor-fold>//GEN-END:initComponents
-
-    private void btnNouvelleCommandeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNouvelleCommandeActionPerformed
-        java.awt.Container parent = getParent();
         while (parent != null && !(parent instanceof teste)) {
             parent = parent.getParent();
         }
+
         if (parent != null) {
-            ((teste) parent).changerPanel(new CommandePanel());
-            
-            for (java.awt.Component comp : ((teste) parent).getContentPane().getComponents()) {
-                if (comp instanceof javax.swing.JPanel jPanel) {
-                    for (java.awt.Component c : jPanel.getComponents()) {
-                        if (c instanceof javax.swing.JLabel && 
-                            ((javax.swing.JLabel) c).getText().equals("COMMANDE")) {
-                            ((teste) parent).highlightSelected((javax.swing.JLabel) c);
-                            break;
+            teste frame = (teste) parent;
+            frame.changerPanel(panel);
+
+            // Highlight menu
+            for (Component comp : frame.getContentPane().getComponents()) {
+                if (comp instanceof JPanel) {
+                    for (Component c : ((JPanel) comp).getComponents()) {
+                        if (c instanceof JLabel &&
+                                ((JLabel) c).getText().equals(menu)) {
+
+                            frame.highlightSelected((JLabel) c);
+                            return;
                         }
                     }
                 }
             }
         }
-    }//GEN-LAST:event_btnNouvelleCommandeActionPerformed
-
-    private void btnNouveauProduitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNouveauProduitActionPerformed
-        java.awt.Container parent = getParent();
-        while (parent != null && !(parent instanceof teste)) {
-            parent = parent.getParent();
-        }
-        if (parent != null) {
-            ((teste) parent).changerPanel(new ProduitPanel());
-            
-            for (java.awt.Component comp : ((teste) parent).getContentPane().getComponents()) {
-                if (comp instanceof javax.swing.JPanel) {
-                    for (java.awt.Component c : ((javax.swing.JPanel) comp).getComponents()) {
-                        if (c instanceof javax.swing.JLabel && 
-                            ((javax.swing.JLabel) c).getText().equals("PRODUIT")) {
-                            ((teste) parent).highlightSelected((javax.swing.JLabel) c);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }//GEN-LAST:event_btnNouveauProduitActionPerformed
-
-    private void btnMouvementStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMouvementStockActionPerformed
-        java.awt.Container parent = getParent();
-        while (parent != null && !(parent instanceof teste)) {
-            parent = parent.getParent();
-        }
-        if (parent != null) {
-            ((teste) parent).changerPanel(new MouvementStockPanel());
-            
-            for (java.awt.Component comp : ((teste) parent).getContentPane().getComponents()) {
-                if (comp instanceof javax.swing.JPanel) {
-                    for (java.awt.Component c : ((javax.swing.JPanel) comp).getComponents()) {
-                        if (c instanceof javax.swing.JLabel && 
-                            ((javax.swing.JLabel) c).getText().equals("MOUVEMENT STOCK")) {
-                            ((teste) parent).highlightSelected((javax.swing.JLabel) c);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }//GEN-LAST:event_btnMouvementStockActionPerformed
-
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnMouvementStock;
-    private javax.swing.JButton btnNouveauProduit;
-    private javax.swing.JButton btnNouvelleCommande;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel9;
-    private javax.swing.JLabel jLabelBackground;
-    private javax.swing.JLabel jLabelWelcome;
-    private javax.swing.JPanel jPanelAlertes;
-    private javax.swing.JPanel jPanelCA;
-    private javax.swing.JPanel jPanelCommandes;
-    private javax.swing.JPanel jPanelQuickActions;
-    private javax.swing.JPanel jPanelStats;
-    private javax.swing.JPanel jPanelStock;
-    private javax.swing.JPanel jPanelTop;
-    private javax.swing.JPanel jPanelWelcome;
-    private javax.swing.JLabel lblAlertes;
-    private javax.swing.JLabel lblCAJour;
-    private javax.swing.JLabel lblCommandesJour;
-    private javax.swing.JLabel lblDate;
-    private javax.swing.JLabel lblTopProduit;
-    private javax.swing.JLabel lblTotalStock;
-    // End of variables declaration//GEN-END:variables
+    }
 }

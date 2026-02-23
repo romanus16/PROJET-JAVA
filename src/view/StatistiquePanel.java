@@ -25,15 +25,15 @@ import java.util.Map;
  */
 public class StatistiquePanel extends javax.swing.JPanel {
     
-    // ========== DAOs ==========
+    // DAO
     private CommandeDAO commandeDAO;
     private ProduitDAO produitDAO;
     
-    // ========== Modèles de tableaux ==========
+    //Modèles de tableaux
     private DefaultTableModel modelTopProduits;
     private DefaultTableModel modelAlertes;
     
-    // ========== Constructeur ==========
+    //Constructeur
     public StatistiquePanel() {
         initComponents();
         
@@ -48,7 +48,7 @@ public class StatistiquePanel extends javax.swing.JPanel {
         chargerStatistiques();
     }
     
-    // ========== Initialisation des composants ==========
+    //Initialisation des composants
     private void preparerTableaux() {
         // Tableau des top produits
         modelTopProduits = new DefaultTableModel(
@@ -83,50 +83,37 @@ public class StatistiquePanel extends javax.swing.JPanel {
         tableAlertesStock.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
     }
     
-    // ========== Charger toutes les statistiques ==========
+    //Charger toutes les statistiques
     private void chargerStatistiques() {
-        chargerChiffreAffaires();
+        chargerStatistique();
         chargerTopProduits();
         chargerAlertesStock();
         chargerValeurStock();
     }
     
-    // ========== Charger le chiffre d'affaires ==========
-    private void chargerChiffreAffaires() {
+    
+    private void chargerStatistique() {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-            Date aujourdhui = new Date();
+            CommandeDAO commandeDAO = new CommandeDAO();
+            ProduitDAO produitDAO = new ProduitDAO();
             
             // CA du jour
             double caJour = commandeDAO.chiffreAffairesDuJour();
             lblCAJour.setText(String.format("%,.0f FCFA", caJour));
             
-            // CA du mois (simulation - à adapter selon votre BD)
-            double caMois = caJour * 22; // Approximation
+            // CA du mois (approximation)
+            double caMois = caJour * 30; // Simplification
             lblCAMois.setText(String.format("%,.0f FCFA", caMois));
             
-            // CA de l'année (simulation)
-            double caAnnee = caMois * 12;
-            lblCAAnnee.setText(String.format("%,.0f FCFA", caAnnee));
+            // Top produits (simulation)
+            chargerTopProduits();
             
-            // Nombre de commandes aujourd'hui
-            List<Commande> commandes = commandeDAO.listerCommandes();
-            long commandesJour = commandes.stream()
-                .filter(c -> {
-                    String dateCommande = sdf.format(c.getDateCommande());
-                    return dateCommande.equals(sdf.format(aujourdhui));
-                })
-                .count();
-            lblNbCommandes.setText(String.valueOf(commandesJour));
-            
-        } catch (DBException e) {
-            JOptionPane.showMessageDialog(this,
-                "Erreur chargement CA: " + e.getMessage(),
-                "Erreur", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erreur chargement stats: " + e.getMessage());
         }
     }
     
-    // ========== Charger le top 5 des produits vendus ==========
+    // Charger le top 5 des produits vendus
     private void chargerTopProduits() {
         try {
             modelTopProduits.setRowCount(0);
@@ -170,7 +157,7 @@ public class StatistiquePanel extends javax.swing.JPanel {
         }
     }
     
-    // ========== Charger les alertes de stock ==========
+    // Charger les alertes de stock
     private void chargerAlertesStock() {
         try {
             modelAlertes.setRowCount(0);
@@ -198,7 +185,7 @@ public class StatistiquePanel extends javax.swing.JPanel {
         }
     }
     
-    // ========== Charger la valeur totale du stock ==========
+    // Charger la valeur totale du stock
     private void chargerValeurStock() {
         try {
             List<Produit> produits = produitDAO.listerTous();

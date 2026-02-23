@@ -171,12 +171,12 @@ public class CommandePanel extends javax.swing.JPanel {
         jLabel4.setText("TOTAL: " + totalCommande + " FCFA");
     }
     
-    // ========== Vérifier le stock ==========
+    //Vérifier le stock
     private boolean verifierStock(Produit produit, int quantite) {
         return produit.getStockActuel() >= quantite;
     }
     
-    // ========== Ajouter une ligne à la commande ==========
+    //Ajouter une ligne à la commande
     private void ajouterLigneCommande() {
         if (txtProduits.getSelectedItem() == null) {
             JOptionPane.showMessageDialog(this, 
@@ -224,7 +224,7 @@ public class CommandePanel extends javax.swing.JPanel {
         actualiserAffichageCommande();
     }
     
-    // ========== Supprimer une ligne sélectionnée ==========
+    //Supprimer une ligne sélectionnée
     private void supprimerLigneSelectionnee() {
         int row = tbnCommandeEnCour.getSelectedRow();
         if (row == -1) {
@@ -238,7 +238,7 @@ public class CommandePanel extends javax.swing.JPanel {
         actualiserAffichageCommande();
     }
     
-    // ========== Générer le reçu ==========
+    //Générer le reçu
     private void genererRecu() {
         StringBuilder recu = new StringBuilder();
         recu.append("══════════════════════════════════════════\n");
@@ -285,7 +285,7 @@ public class CommandePanel extends javax.swing.JPanel {
             JOptionPane.PLAIN_MESSAGE);
     }
     
-    // ========== Valider la commande ==========
+    // Valider la commande
     private void validerCommande() {
         if (lignesCommande.isEmpty()) {
             JOptionPane.showMessageDialog(this, 
@@ -366,7 +366,6 @@ public class CommandePanel extends javax.swing.JPanel {
         btnSupprimerLigne = new javax.swing.JButton();
         btnValiderCommande = new javax.swing.JButton();
         btnAnnulerCommande = new javax.swing.JButton();
-        btnAjouterLigne = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -375,6 +374,7 @@ public class CommandePanel extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         txtQuantite = new javax.swing.JSpinner();
         txtProduits = new javax.swing.JComboBox<>();
+        btnAjouterLigne = new javax.swing.JButton();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -425,6 +425,7 @@ public class CommandePanel extends javax.swing.JPanel {
             boolean[] canEdit = new boolean [] {
                 false, false, false, false
             };
+
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
@@ -446,11 +447,6 @@ public class CommandePanel extends javax.swing.JPanel {
         btnNouveauCommande.setBackground(new java.awt.Color(51, 102, 255));
         btnNouveauCommande.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnNouveauCommande.setText("Nouvelle Commande");
-        btnNouveauCommande.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnNouveauCommandeActionPerformed(evt);
-            }
-        });
 
         btnSupprimerLigne.setBackground(new java.awt.Color(255, 102, 102));
         btnSupprimerLigne.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -475,23 +471,9 @@ public class CommandePanel extends javax.swing.JPanel {
         btnAnnulerCommande.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnAnnulerCommande.setForeground(new java.awt.Color(102, 102, 102));
         btnAnnulerCommande.setText("Annuler commande");
-        btnAnnulerCommande.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAnnulerCommandeActionPerformed(evt);
-            }
-        });
-
-        btnAjouterLigne.setBackground(new java.awt.Color(51, 255, 51));
-        btnAjouterLigne.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnAjouterLigne.setText("AJOUTER A LA COMMANDE");
-        btnAjouterLigne.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAjouterLigneActionPerformed(evt);
-            }
-        });
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel4.setText("TOTAL: 0 FCFA");
+        jLabel4.setText("TOTAL:");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -506,9 +488,7 @@ public class CommandePanel extends javax.swing.JPanel {
                 .addComponent(btnValiderCommande)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnAnnulerCommande)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnAjouterLigne)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(96, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel4)
@@ -523,8 +503,7 @@ public class CommandePanel extends javax.swing.JPanel {
                     .addComponent(btnNouveauCommande)
                     .addComponent(btnSupprimerLigne)
                     .addComponent(btnValiderCommande)
-                    .addComponent(btnAnnulerCommande)
-                    .addComponent(btnAjouterLigne))
+                    .addComponent(btnAnnulerCommande))
                 .addGap(36, 36, 36))
         );
 
@@ -549,18 +528,19 @@ public class CommandePanel extends javax.swing.JPanel {
         tbnProduitDispo.setAutoCreateRowSorter(true);
         tbnProduitDispo.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "ID", "Produit", "Catégorie", "Prix", "Stock"
+                "Produit", "Catégorie", "Prix", "Stock"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                false, false, false, false
             };
+
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
@@ -573,42 +553,52 @@ public class CommandePanel extends javax.swing.JPanel {
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel3.setText("Quantité :");
 
-        txtProduits = new javax.swing.JComboBox<Business.Produit>();
-
-        txtQuantite.setModel(new javax.swing.SpinnerNumberModel(1, 1, 99, 1));
+        btnAjouterLigne.setBackground(new java.awt.Color(51, 255, 51));
+        btnAjouterLigne.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnAjouterLigne.setText("AJOUTER A LA COMMANDE");
+        btnAjouterLigne.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAjouterLigneActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(11, 11, 11)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 476, Short.MAX_VALUE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txtQuantite)
+                    .addComponent(txtProduits, 0, 228, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtQuantite)
-                            .addComponent(txtProduits, 0, 257, Short.MAX_VALUE))))
+                        .addGap(14, 14, 14)
+                        .addComponent(btnAjouterLigne, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(109, Short.MAX_VALUE))
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtProduits, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(12, 12, 12)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtQuantite, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 323, Short.MAX_VALUE)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnAjouterLigne)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 409, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jSplitPane1.setLeftComponent(jPanel4);

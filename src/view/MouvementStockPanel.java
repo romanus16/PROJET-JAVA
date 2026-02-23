@@ -21,15 +21,15 @@ import java.util.List;
  */
 public class MouvementStockPanel extends javax.swing.JPanel {
     
-    // ========== DAOs ==========
+    //DAO
     private MouvementStockDAO mouvementDAO;
     private ProduitDAO produitDAO;
     
-    // ========== Modèles de tableaux ==========
+    //Modèles de tableaux
     private DefaultTableModel modelMouvements;
     private DefaultTableModel modelAlertes;
     
-    // ========== Constructeur ==========
+    //Constructeur
     public MouvementStockPanel() {
         initComponents();
         
@@ -51,7 +51,7 @@ public class MouvementStockPanel extends javax.swing.JPanel {
         txtType.addItem("SORTIE");
     }
     
-    // ========== Initialisation des tableaux ==========
+    // Initialisation des tableaux 
     private void preparerTableaux() {
         // Tableau des mouvements
         modelMouvements = (DefaultTableModel) tbnMouvementStock.getModel();
@@ -74,7 +74,7 @@ public class MouvementStockPanel extends javax.swing.JPanel {
         tbnAlertStock.getColumnModel().getColumn(4).setCellRenderer(centerRenderer); // Déficit
     }
     
-    // ========== Charger les produits dans la comboBox ==========
+    // Charger les produits dans la comboBox 
     private void chargerProduits() {
         try {
             txtProduitsStock.removeAllItems();
@@ -90,7 +90,7 @@ public class MouvementStockPanel extends javax.swing.JPanel {
         }
     }
     
-    // ========== Charger l'historique des mouvements ==========
+    // Charger l'historique des mouvements 
     private void chargerMouvements() {
         try {
             modelMouvements.setRowCount(0);
@@ -114,7 +114,7 @@ public class MouvementStockPanel extends javax.swing.JPanel {
         }
     }
     
-    // ========== Charger les alertes de stock ==========
+    //  Charger les alertes de stock 
     private void chargerAlertes() {
         try {
             modelAlertes.setRowCount(0);
@@ -140,7 +140,7 @@ public class MouvementStockPanel extends javax.swing.JPanel {
         }
     }
     
-    // ========== Vider le formulaire ==========
+    //  Vider le formulaire 
     private void viderFormulaire() {
         if (txtProduitsStock.getItemCount() > 0) {
             txtProduitsStock.setSelectedIndex(0);
@@ -152,7 +152,7 @@ public class MouvementStockPanel extends javax.swing.JPanel {
         txtMotif.setText("");
     }
     
-    // ========== Valider la saisie ==========
+    //  Valider la saisie 
     private boolean validerSaisie() {
         if (txtProduitsStock.getSelectedItem() == null) {
             JOptionPane.showMessageDialog(this,
@@ -202,7 +202,7 @@ public class MouvementStockPanel extends javax.swing.JPanel {
         return true;
     }
     
-    // ========== Enregistrer un mouvement ==========
+    //  Enregistrer un mouvement 
     private void enregistrerMouvement() {
         if (!validerSaisie()) return;
         
@@ -262,6 +262,9 @@ public class MouvementStockPanel extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+	setMinimumSize(null);
+	setPreferredSize(null);
+	setMaximumSize(null);
         java.awt.GridBagConstraints gridBagConstraints;
 
         jPanel1 = new javax.swing.JPanel();
@@ -475,7 +478,7 @@ public class MouvementStockPanel extends javax.swing.JPanel {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnRafraichir)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -528,10 +531,8 @@ public class MouvementStockPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
         add(jPanel8, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
